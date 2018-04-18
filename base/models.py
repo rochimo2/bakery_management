@@ -52,12 +52,12 @@ class Product(models.Model):
 
 class ProductSupply(models.Model):
     product  = models.ForeignKey(Product, on_delete=models.CASCADE)
-    supply1   = models.ForeignKey(Supply, on_delete=models.CASCADE)
+    supply   = models.ForeignKey(Supply, on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=5, decimal_places=2)
 
 class ProductFeature(models.Model):
     product  = models.ForeignKey(Product, on_delete=models.CASCADE)
-    feature1  = models.ForeignKey(Feature, on_delete=models.CASCADE)
+    feature  = models.ForeignKey(Feature, on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=5, decimal_places=2)
 
 
