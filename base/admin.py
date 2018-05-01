@@ -1,22 +1,30 @@
 from django.contrib import admin
-from .models import Product, Feature, Movement, Supplier, Supply, Order, Client
+from .models import Product, Feature, Movement, Supplier, Supply, Order, Client, Auto, Repuesto, Autoparte, Supplies, Features
 
 
 class FeatureAdmin(admin.ModelAdmin):
     model = Feature
 admin.site.register(Feature, FeatureAdmin)
 
+class SupplyInline(admin.TabularInline):
+    model= Supplies
+    extra = 1
+
+class FeatureInline(admin.TabularInline):
+    model = Features
+    extra = 1
+
 class ProductAdmin(admin.ModelAdmin):
-    model = Product
+    inlines = (SupplyInline, FeatureInline,)
 admin.site.register(Product, ProductAdmin)
+
+class SupplyAdmin(admin.ModelAdmin):
+    model = Supply
+admin.site.register(Supply,SupplyAdmin)
 
 class SupplierAdmin(admin.ModelAdmin):
     model = Supplier
 admin.site.register(Supplier,SupplierAdmin)
-
-class SupplyAdmin(admin.ModelAdmin):
-    model = Supply
-admin.site.register(Supply, SupplyAdmin)
 
 # Error = supply no tiene FK a movement.
 # class SupplyInline(admin.TabularInline):
@@ -44,3 +52,20 @@ admin.site.register(Client, ClientAdmin)
 # class PurchaseAdmin(admin.ModelAdmin):
 #     model = Purchase
 # admin.site.register(Purchase, PurchaseAdmin)
+
+# class PurchaseAdmin(admin.ModelAdmin):
+#     model = Purchase
+# admin.site.register(Purchase, PurchaseAdmin)
+
+class AutoparteInline(admin.TabularInline):
+    model = Autoparte
+    extra = 1
+
+class AutoAdmin(admin.ModelAdmin):
+    inlines = (AutoparteInline,)
+admin.site.register(Auto, AutoAdmin)
+
+class RepuestoAdmin(admin.ModelAdmin):
+    inlines = (AutoparteInline,)
+admin.site.register(Repuesto, RepuestoAdmin)
+

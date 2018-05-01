@@ -53,6 +53,19 @@ urlpatterns = {
 #     url(r'^compra/nuevo/$', views.CreatePurchaseView.as_view(), name="crear_nuevo_compra"),
 
 #     url(r'^compra/detalle/(?P<pk>[0-9]+)/$', views.DetailsPurchaseView.as_view(), name="modificar_compra"),
+
+    url(r'^auto/$', views.AutoView.as_view(), name="auto"),
+
+    url(r'^auto/nuevo/$', views.CreateAutoView.as_view(), name="crear_nuevo_auto"),
+
+    url(r'^auto/detalle/(?P<pk>[0-9]+)/$', views.DetailsAutoView.as_view(), name="modificar_auto"),
+
+    url(r'^repuesto/$', views.RepuestoView.as_view(), name="repuesto"),
+
+    url(r'^repuesto/nuevo/$', views.CreateRepuestoView.as_view(), name="crear_nuevo_repuesto"),
+
+    url(r'^repuesto/detalle/(?P<pk>[0-9]+)/$', views.DetailsRepuestoView.as_view(), name="modificar_repuesto"),
+
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -6,7 +6,7 @@ class Feature(models.Model):
     nombre   = models.CharField(max_length=70)
     tipo     = models.CharField(max_length=70)
     precio   = models.DecimalField('$', max_digits= 7, decimal_places=2, null= True)
-    cantidad = models.IntegerField
+    cantidad = models.IntegerField('cantidad', null=True)
 
     def __str__(self):
             """Devuelve una representación legible de la instancia del modelo."""
@@ -21,7 +21,8 @@ class Supply(models.Model):
     KILO = 'KG'
     UNIDAD = 'UN'
     LITRO = 'LT'
-    TIPO_CHOICES = ((KILO, 'Kilo'), (UNIDAD, 'Unidad'), (LITRO, 'Litro'))
+    METRO = 'MT'
+    TIPO_CHOICES = ((KILO, 'Kilo'), (UNIDAD, 'Unidad'), (LITRO, 'Litro'), (METRO, 'Metro'))
     nombre = models.CharField(max_length = 70)
     marca = models.CharField(max_length = 70)
     tipo = models.CharField(max_length = 70)
@@ -36,12 +37,17 @@ class Supply(models.Model):
 
 
 
-
+ 
 class Product(models.Model):
     """Esta clase representa el modelo para los productos terminados seleccionados por el cliente para ser cotizado."""
     nombre = models.CharField(max_length = 70, blank = False)
-    features = models.ManyToManyField(Feature, through='ProductFeature')
-    supplies = models.ManyToManyField(Supply, through='ProductSupply')
+    caracteristicas = models.ManyToManyField(Feature, related_name="productos",
+                                            through_fields=('product', 'feature'),
+                                            through='Features')
+    ingredientes = models.ManyToManyField(Supply, related_name="productos",
+                                            through_fields=('product', 'supply'),
+                                            through='Supplies')
+    
 
     def __str__(self):
             """Devuelve una representación legible de la instancia del modelo."""
@@ -49,13 +55,14 @@ class Product(models.Model):
 # Mostrar al cliente para que confirme el producto a cotizar. Mostrar al pastelero toda la tabla con el costo
 # mas el costo final para fijar el precio.
 
-
-class ProductSupply(models.Model):
+# Modelo para m2m Product
+class Supplies(models.Model):
     product  = models.ForeignKey(Product, on_delete=models.CASCADE)
     supply   = models.ForeignKey(Supply, on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=5, decimal_places=2)
 
-class ProductFeature(models.Model):
+# Modelo para m2m Product
+class Features(models.Model):
     product  = models.ForeignKey(Product, on_delete=models.CASCADE)
     feature  = models.ForeignKey(Feature, on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=5, decimal_places=2)
@@ -83,7 +90,7 @@ class Order(models.Model):
     ocasion = models.CharField(max_length = 50)
     ingredientes_utilizados = models.ForeignKey(Supply, on_delete=models.CASCADE, blank = True)
     producto = models.ForeignKey(Product, on_delete=models.CASCADE, blank = True, null= True)
-
+# Poner productocomo many to many!!!!
     def __str__(self):
         """Devuelve una representación legible de la instancia del modelo."""
         return "{}".format(self.ocasion)
@@ -150,6 +157,30 @@ class Movement(models.Model):
 
 
 
+# PRUEBA DE M2M 
+class Repuesto(models.Model):
+    nombre= models.CharField(max_length=80, default='', unique=True)
+    auto_nombre= models.CharField(max_length=80, default='')
+
+    def __str__(self):
+        """Devuelve una representación legible de la instancia del modelo."""
+        return "{}".format(self.nombre)
+
+
+class Auto(models.Model):
+    nombre= models.CharField(max_length= 80,default='', unique=True)
+    repuestos= models.ManyToManyField(
+                                    Repuesto,
+                                    related_name='autos',
+                                    through='Autoparte',
+                                    through_fields=('auto', 'repuesto'))
+
+    def __str__(self):
+        """Devuelve una representación legible de la instancia del modelo."""
+        return "{}".format(self.nombre)
 
 
 
+class Autoparte(models.Model):
+    auto= models.ForeignKey(Auto, on_delete=models.CASCADE)
+    repuesto = models.ForeignKey(Repuesto, on_delete=models.CASCADE)
