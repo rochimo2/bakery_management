@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Product, Feature, Movement, Supplier, Supply, Order, Client, Auto, Repuesto, Autoparte, Supplies, Features
+from .models import (Product, Feature, Purchase, Supplier, 
+Supply, Order, Client, Supplies, Features, SuppliesPurchase, Sale, SystemParameters)
 
 
 class FeatureAdmin(admin.ModelAdmin):
@@ -26,16 +27,14 @@ class SupplierAdmin(admin.ModelAdmin):
     model = Supplier
 admin.site.register(Supplier,SupplierAdmin)
 
-# Error = supply no tiene FK a movement.
-# class SupplyInline(admin.TabularInline):
-#     model= Supply
-#     extra= 10
-#     fk_name= 'supply'
-# quiero que movement en el administrador me de varios lugares para poner los productos de una sola vez.
-class MovementAdmin(admin.ModelAdmin):
-    model = Movement
-    # inlines = [SupplyInline]
-admin.site.register(Movement, MovementAdmin)
+class SupplyPurchaseInline(admin.TabularInline):
+    model = SuppliesPurchase
+    extra = 1
+
+class PurchaseAdmin(admin.ModelAdmin):
+    model = Purchase
+    inlines = (SupplyPurchaseInline,)
+admin.site.register(Purchase, PurchaseAdmin)
 
 class OrderAdmin(admin.ModelAdmin):
     model = Order
@@ -45,27 +44,11 @@ class ClientAdmin(admin.ModelAdmin):
     model = Client
 admin.site.register(Client, ClientAdmin)
 
-# class SaleAdmin(admin.ModelAdmin):
-#     model = Sale
-# admin.site.register(Sale, SaleAdmin)
 
-# class PurchaseAdmin(admin.ModelAdmin):
-#     model = Purchase
-# admin.site.register(Purchase, PurchaseAdmin)
+class SaleAdmin(admin.ModelAdmin):
+    model = Sale
+admin.site.register(Sale, SaleAdmin)
 
-# class PurchaseAdmin(admin.ModelAdmin):
-#     model = Purchase
-# admin.site.register(Purchase, PurchaseAdmin)
-
-class AutoparteInline(admin.TabularInline):
-    model = Autoparte
-    extra = 1
-
-class AutoAdmin(admin.ModelAdmin):
-    inlines = (AutoparteInline,)
-admin.site.register(Auto, AutoAdmin)
-
-class RepuestoAdmin(admin.ModelAdmin):
-    inlines = (AutoparteInline,)
-admin.site.register(Repuesto, RepuestoAdmin)
-
+class SystemParametersAdmin(admin.ModelAdmin):
+    model = SystemParameters
+admin.site.register(SystemParameters, SystemParametersAdmin)

@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.conf.urls.static import static
+
 from django.conf.urls import url, include
 
 from rest_framework.urlpatterns import format_suffix_patterns
@@ -30,17 +33,17 @@ urlpatterns = {
 
     url(r'^material/detalle/(?P<pk>[0-9]+)/$', views.DetailsSupplyView.as_view(), name="modificar_material"),
 
-    url(r'^movimiento/$', views.MovementView.as_view(), name="movimiento"),
+    url(r'^compra/$', views.PurchaseView.as_view(), name="compra"),
 
-    url(r'^movimiento/nuevo/$', views.CreateMovementView.as_view(), name="crear_nuevo_movimiento"),
+    url(r'^compra/nuevo/$', views.CreatePurchaseView.as_view(), name="crear_nuevo_compra"),
 
-    url(r'^movimiento/detalle/(?P<pk>[0-9]+)/$', views.DetailsMovementView.as_view(), name="modificar_movimiento"),
+    url(r'^compra/detalle/(?P<pk>[0-9]+)/$', views.DetailsPurchaseView.as_view(), name="modificar_compra"),
 
-    url(r'^cliente/$', views.ProductView.as_view(), name="cliente"),
+    url(r'^cliente/$', views.ClientView.as_view(), name="cliente"),
 
-    url(r'^cliente/nuevo/$', views.CreateProductView.as_view(), name="crear_nuevo_cliente"),
+    url(r'^cliente/nuevo/$', views.CreateClientView.as_view(), name="crear_nuevo_cliente"),
 
-    url(r'^cliente/detalle/(?P<pk>[0-9]+)/$', views.DetailsProductView.as_view(), name="modificar_cliente"),
+    url(r'^cliente/detalle/(?P<pk>[0-9]+)/$', views.DetailsClientView.as_view(), name="modificar_cliente"),
 
     url(r'^pedido/$', views.OrderView.as_view(), name="pedido"),
 
@@ -48,24 +51,16 @@ urlpatterns = {
 
     url(r'^pedido/detalle/(?P<pk>[0-9]+)/$', views.DetailsOrderView.as_view(), name="modificar_pedido"),
 
-#     url(r'^compra/$', views.PurchaseView.as_view(), name="compra"),
+    url(r'^venta/$', views.SaleView.as_view(), name="venta"),
 
-#     url(r'^compra/nuevo/$', views.CreatePurchaseView.as_view(), name="crear_nuevo_compra"),
+    url(r'^venta/nuevo/$', views.CreateSaleView.as_view(), name="crear_nuevo_venta"),
 
-#     url(r'^compra/detalle/(?P<pk>[0-9]+)/$', views.DetailsPurchaseView.as_view(), name="modificar_compra"),
-
-    url(r'^auto/$', views.AutoView.as_view(), name="auto"),
-
-    url(r'^auto/nuevo/$', views.CreateAutoView.as_view(), name="crear_nuevo_auto"),
-
-    url(r'^auto/detalle/(?P<pk>[0-9]+)/$', views.DetailsAutoView.as_view(), name="modificar_auto"),
-
-    url(r'^repuesto/$', views.RepuestoView.as_view(), name="repuesto"),
-
-    url(r'^repuesto/nuevo/$', views.CreateRepuestoView.as_view(), name="crear_nuevo_repuesto"),
-
-    url(r'^repuesto/detalle/(?P<pk>[0-9]+)/$', views.DetailsRepuestoView.as_view(), name="modificar_repuesto"),
-
+    url(r'^venta/detalle/(?P<pk>[0-9]+)/$', views.DetailsSaleView.as_view(), name="modificar_venta"),
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)
+
+
+if settings.DEBUG:
+    urlpatterns = urlpatterns + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns = urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

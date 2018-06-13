@@ -1,10 +1,10 @@
 from rest_framework import serializers
-from .models import Feature, Product, Client, Order, Movement, Supply, Supplier, Repuesto, Auto
+from .models import Feature, Product, Client, Order, Purchase, Supply, Supplier, Sale
 
 class FeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feature
-        fields = ('id', 'nombre', 'tipo', 'precio', 'cantidad')
+        fields = ('id', 'nombre', 'tipo', 'precio', 'cantidad', 'imagen')
 
 class SupplySerializer(serializers.ModelSerializer):
 
@@ -17,25 +17,19 @@ class ProductSerializer(serializers.ModelSerializer):
     sup = SupplySerializer(many=True, read_only=True)
     class Meta:
         model = Product
-        fields = ('id', 'nombre', 'caracteristicas', 'ingredientes', 'feat', 'sup')
+        fields = ('id', 'nombre', 'caracteristicas', 'ingredientes', 'imagen', 'feat', 'sup')
 
 class ClientSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Client
-        fields = ('id', 'nombre', 'direccion', 'telefono', 'mail', 'pedido')
+        fields = ('id', 'nombre', 'direccion', 'telefono', 'mail', 'ordenes')
 
 class OrderSerializer(serializers.ModelSerializer):
-
+    prod = ProductSerializer(many=True, read_only=True)
     class Meta:
         model = Order
-        fields = ('id', 'fecha', 'descripcion', 'ocasion', 'ingredientes_utilizados', 'producto')
-
-class MovementSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Movement
-        fields = ('id', 'fecha', 'tipo', 'supply', 'cantidad', 'precio_unitario', 'suplier', 'client', 'orden', 'producto')
+        fields = ('id', 'fecha', 'descripcion', 'ocasion', 'producto', 'cliente', 'costo_total', 'precio_sugerido', 'prod')
 
 class SupplierSerializer(serializers.ModelSerializer):
 
@@ -43,21 +37,16 @@ class SupplierSerializer(serializers.ModelSerializer):
         model = Supplier
         fields = ('id', 'nombre', 'direccion', 'telefono', 'contacto')
 
-# class PurchaseSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Purchase
-#         fields = ('id', 'cantidad', 'supplier', 'supply', 'precio_unitario', 'fecha')
-
-class RepuestoSerializer(serializers.ModelSerializer):
-    # autos = serializers.PrimaryKeyRelatedField(many=True, read_only=True, allow_empty=False)
-
+class PurchaseSerializer(serializers.ModelSerializer):
+    sply = SupplySerializer(many=True, read_only=True)
     class Meta:
-        model= Repuesto
-        fields=('id', 'nombre', 'auto_nombre')
+        model = Purchase
+        fields = ('id', 'fecha', 'supply', 'supplier', 'sply')
 
-class AutoSerializer(serializers.ModelSerializer):
-    repu = RepuestoSerializer(many=True, read_only=True)
+class SaleSerializer(serializers.ModelSerializer):
     class Meta:
-        model= Auto
-        fields= ('id', 'nombre', 'repuestos', 'repu')
+        model = Sale
+        fields = ('id', 'fecha', 'orden', 'cliente')
+
+
  
