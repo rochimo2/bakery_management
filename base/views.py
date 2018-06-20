@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 
 from decimal import Decimal
 
 from rest_framework import generics
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework import status
 
 import json
 
@@ -16,6 +18,8 @@ SupplySerializer, ClientSerializer, OrderSerializer, PurchaseSerializer, SaleSer
 
 from .models import (Product, Feature, Supplier, Supply, Purchase, Sale,
 Client, Order, Features, Supplies, SuppliesPurchase, Products, SystemParameters)
+
+
 
 # PRODUCTOS
 # url(r'^producto/$'
@@ -31,7 +35,7 @@ class CreateProductView(generics.ListCreateAPIView):
     serializer_class = ProductSerializer
 
     def perform_create(self, serializer):
-        """Guarda la info al crear un nuevo producto."""
+        """Guarda la info al crear un nuevo producto. Calcula el COSTO del producto. Crea FEATURES y SUPPLIES y la relación m2m"""
         serializer.save()
         id_producto= serializer.instance.id
         # Para obtener el id del producto recien guardado. Fui a consola de depuraciony puse serializer, enter
@@ -69,6 +73,7 @@ class CreateProductView(generics.ListCreateAPIView):
         prod = Product.objects.get(id=id_producto)
         prod.costo = costo_producto(id_producto)
         prod.save()
+
 
 
 # url(r'^producto/detalle/(?P<pk>[0-9]+)/$'
@@ -207,11 +212,11 @@ class CreatePurchaseView(generics.ListCreateAPIView):
     serializer_class = PurchaseSerializer
 
     def perform_create(self, serializer):
-        """Guarda la info al crear un nuevo movimiento."""
+        """Guarda la info al crear una nueva COMPRA. Suma al stock de SUPPLY. Crea nuevo SUPPLY si no existe.
+        Crea relación m2m """
         serializer.save()
         post = self.request.POST
         lista_supplies = json.loads(post.get('supplies'))
-
 
         for sup in lista_supplies:
             if sup.get('id') == None:
@@ -251,7 +256,6 @@ class CreatePurchaseView(generics.ListCreateAPIView):
                 #     item.saldo -= Decimal(post.get('cantidad'))
                 # item.save()
 
-
 # url(r'^compra/detalle/(?P<pk>[0-9]+)/$'
 class DetailsPurchaseView(generics.RetrieveUpdateDestroyAPIView):
     """Esta clase maneja los requests GET, PUT, PATCH y DELETE ."""
@@ -290,17 +294,6 @@ class CreateSaleView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         """Guarda la info al crear una nueva feature."""
         serializer.save()
-        # lista_productos = serializer.instance.orden.producto.all()
-
-        # for prod in lista_productos:
-        #     for ingred in prod.ingredientes.all():
-        #         cant = prod.supplies_set.get(supply=ingred).cantidad
-        #         ingred.saldo -= cant
-        #         if ingred.saldo == ingred.saldo_minimo:
-        #             return(f'Alerta: el supply {ingred} tiene stock mínimo')
-        #         ingred.save()
-
-
 
 class DetailsSaleView(generics.RetrieveUpdateDestroyAPIView):
     """Esta clase maneja los requests GET, PUT, PATCH y DELETE ."""
@@ -310,17 +303,8 @@ class DetailsSaleView(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         """Actualiza una venta"""
         serializer.save()
-        # lista_productos = serializer.instance.orden.producto.all()
-        # id_post = serializer.data['id']
 
-        # Sale(id_post).orden.clear()
-        # for prod in lista_productos:
-        #     for ingred in prod.ingredientes.all():
-        #         cant = prod.supplies_set.get(supply=ingred).cantidad
-        #         ingred.saldo -= cant
-        #         ingred.save()
-        #         if ingred.saldo == ingred.saldo_minimo:
-        #             return('Alerta: el supply {} tiene stock mínimo')
+
 
 # CLIENTES(CLIENT)
 # url(r'^cliente/$
@@ -360,17 +344,25 @@ class CreateOrderView(generics.ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
-    def perform_create(self, serializer):
-        """Guarda la info al crear una nueva."""
-        alerta=''
+    # def perform_create(self, serializer):
+    #     """Guarda la info al crear una nueva ORDEN. RESTA del stock. Controla el saldo mínimo.Devuelve el precio sugerido."""
+    #     alerta=''
+    #     serializer.save()
+    def create(self, request, *args, **kwargs):
+        """
+        Guarda la info al crear una nueva ORDEN. RESTA del stock.
+        Controla el saldo mínimo.Devuelve el precio sugerido.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        alerta = {}
         post = self.request.POST
         lista_productos = json.loads(post.get('productos'))
-        precio_hora_trabajada = 10
+        precio_hora_trabajada = SystemParameters.objects.get(id=1).precio_hora_trabajada
 
         serializer.instance.costo_total = costo_total_orden(post)
-
-        serializer.instance.save()
 
         # TODO: reemplazar este for por el metodo correcto para arreglar la relacion usando .add
         horas_trabajadas_total = 0
@@ -384,17 +376,22 @@ class CreateOrderView(generics.ListCreateAPIView):
                 ingrediente.saldo -= cantidad_por_ingrediente*Decimal(prod['cantidad'])
                 ingrediente.save()
                 if ingrediente.saldo <= ingrediente.saldo_minimo:
-                    alerta= 'Alerta: el supply tiene stock mínimo'
+                    alerta = {'Alerta' : {'Titulo' : 'Alerta de Stock', 'Mensaje': 'El stock del ingrediente {} llegó a su mínimo: {} '.format(ingrediente.nombre, ingrediente.saldo_minimo)}}
+                    print(alerta)
+                #     return JsonResponse({'alerta': 'Alerta: el supply (agregar nombre del supply) tiene stock mínimo'})
+                # continue
 
             horas_trabajadas_total += producto.horas_trabajadas
 
         serializer.instance.precio_sugerido = (serializer.instance.costo_total*3)+(precio_hora_trabajada*horas_trabajadas_total)
-        serializer.instance.save()
+        serializer.save()
 
+        headers = self.get_success_headers(serializer.data)
+        return Response({'orden': serializer.data, 'alerta': alerta}, status=status.HTTP_201_CREATED, headers=headers)
+
+        # return JsonResponse({'alerta': 'Alerta: el supply (agregar nombre del supply) tiene stock mínimo'})
         # JSONRenderer().render([serializer.data, {'alerta': alerta}])
-        return Response('{"rocio": 5}')
-# TODO: no olvidar calcular el precio_sugerido. ver el Todo del modelo producto.
-
+        # return Response('{"rocio": 5}')
 
 # url(r'^pedido/detalle/(?P<pk>[0-9]+)/$'
 class DetailsOrderView(generics.RetrieveUpdateDestroyAPIView):
@@ -406,11 +403,15 @@ class DetailsOrderView(generics.RetrieveUpdateDestroyAPIView):
         serializer.save()
         post = self.request.POST
         lista_productos = json.loads(post.get('productos'))
+        precio_hora_trabajada = SystemParameters.objects.get(id=1).precio_hora_trabajada
+        id_post = serializer.data['id']
 
         serializer.instance.costo_total = costo_total_orden(post)
         serializer.instance.save()
 
         # TODO: reemplazar este for por el metodo correcto para arreglar la relacion usando .add
+        Order(id_post).producto.clear()
+        horas_trabajadas_total = 0
         for prod in lista_productos:
             producto = Product.objects.get(pk=prod['id'])
             Products.objects.create(order=serializer.instance,
@@ -421,9 +422,15 @@ class DetailsOrderView(generics.RetrieveUpdateDestroyAPIView):
                 ingrediente.saldo -= cantidad_por_ingrediente*Decimal(prod['cantidad'])
                 ingrediente.save()
                 if ingrediente.saldo <= ingrediente.saldo_minimo:
-                    alerta= 'Alerta: el supply tiene stock mínimo'
+                    alerta = 'Alerta: el supply tiene stock mínimo'
+                    content = {'alerta': alerta}
+                    return Response (content)
 
+            horas_trabajadas_total += producto.horas_trabajadas
 
+        serializer.instance.precio_sugerido = (serializer.instance.costo_total*3)+(precio_hora_trabajada*horas_trabajadas_total)
+        serializer.instance.save()
 
-# TODO: revisar si el metodo clear() va acá(como va en product).
-        # Order(id_post).clear()
+        # JSONRenderer().render([serializer.data, {'alerta': alerta}])
+        # return Response({"rocio": 5})
+# TODO: Encontrar la manera de hacer un return de la alerta

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (Product, Feature, Purchase, Supplier, 
-Supply, Order, Client, Supplies, Features, SuppliesPurchase, Sale, SystemParameters)
+Supply, Products, Order, Client, Supplies, Features, SuppliesPurchase, Sale, SystemParameters)
 
 
 class FeatureAdmin(admin.ModelAdmin):
@@ -36,8 +36,13 @@ class PurchaseAdmin(admin.ModelAdmin):
     inlines = (SupplyPurchaseInline,)
 admin.site.register(Purchase, PurchaseAdmin)
 
+class ProductsInline (admin.TabularInline):
+    model = Products
+    extra = 1
+
 class OrderAdmin(admin.ModelAdmin):
     model = Order
+    inlines = (ProductsInline,)
 admin.site.register(Order, OrderAdmin)
 
 class ClientAdmin(admin.ModelAdmin):
