@@ -47,7 +47,7 @@ class CreateProductView(generics.ListCreateAPIView):
         for caract in lista_caracteristicas:
             if caract.get('id') == None:
                 nueva_feature= Feature.objects.create(nombre=caract['nombre'], tipo=caract['tipo'],
-                precio=caract['precio'], cantidad= caract['cantidad'])
+                precio=caract['precio'], imagen=caract['imagen'])
 
                 Features.objects.create(product=serializer.instance,
                 feature= nueva_feature, cantidad =caract['cantidad'])
@@ -56,12 +56,12 @@ class CreateProductView(generics.ListCreateAPIView):
                 Features.objects.create(product=serializer.instance,
                 feature=Feature.objects.get(pk=caract['id']), cantidad =caract['cantidad'])
 
-
+# TODO: agregar saldo_minimo, horas trabajadas donde vaya!
         for ingr in lista_ingredientes:
             if ingr.get('id') == None:
                 nuevo_supply = Supply.objects.create(nombre=ingr['nombre'], marca=ingr['marca'],
                 tipo=ingr['tipo'], precio_unitario=ingr['precio_unitario'], saldo=ingr['saldo'],
-                 unidad=ingr['unidad'])
+                unidad=ingr['unidad'], saldo_minimo=ingr['saldo_minimo'])
 
                 Supplies.objects.create(product=serializer.instance,
                 supply= nuevo_supply, cantidad = ingr['cantidad'])
@@ -94,7 +94,7 @@ class DetailsProductView(generics.RetrieveUpdateDestroyAPIView):
         for caract in lista_caracteristicas:
             if caract.get('id') == None:
                 nueva_feature= Feature.objects.create(nombre=caract['nombre'], tipo=caract['tipo'],
-                precio=caract['precio'], cantidad= caract['cantidad'])
+                precio=caract['precio'], imagen=caract['imagen'])
 
                 Features.objects.create(product=serializer.instance,
                 feature= nueva_feature, cantidad =caract['cantidad'])
@@ -108,7 +108,7 @@ class DetailsProductView(generics.RetrieveUpdateDestroyAPIView):
             if ingr.get('id') == None:
                 nuevo_supply = Supply.objects.create(nombre=ingr['nombre'], marca=ingr['marca'],
                 tipo=ingr['tipo'], precio_unitario=ingr['precio_unitario'], saldo=ingr['saldo'],
-                 unidad=ingr['unidad'])
+                 unidad=ingr['unidad'], saldo_minimo=ingr['saldo_minimo'])
 
                 Supplies.objects.create(product=serializer.instance,
                 supply= nuevo_supply, cantidad = ingr['cantidad'])
@@ -146,6 +146,13 @@ class DetailsFeatureView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Feature.objects.all()
     serializer_class = FeatureSerializer
 
+    def perform_update(self, serializer):
+        serializer.save()
+
+        feature = Features.objects.get(feature=serializer.data['id'])
+        producto = feature.product
+        producto.costo = costo_producto(id_producto=feature.product.id)
+        producto.save()
 
 
 # PROVEEDORES (SUPPLIER)
@@ -216,18 +223,18 @@ class CreatePurchaseView(generics.ListCreateAPIView):
         Crea relación m2m """
         serializer.save()
         post = self.request.POST
-        lista_supplies = json.loads(post.get('supplies'))
+        lista_supplies = json.loads(post.get('supply'))
 
         for sup in lista_supplies:
             if sup.get('id') == None:
                 nuevo_supply = Supply.objects.create(nombre=sup['nombre'], marca=sup['marca'],
                 tipo=sup['tipo'], precio_unitario=sup['precio_unitario'], saldo=sup['saldo'],
-                unidad=sup['unidad'])
+                unidad=sup['unidad'], saldo_minimo=ingr['saldo_minimo'])
 
                 SuppliesPurchase.objects.create(purchase=serializer.instance,
                 supply= nuevo_supply, cantidad=sup['cantidad'], precio_unitario=sup['precio_unitario'])
 
-                lista_supply = json.loads(post.get('supplies'))
+                lista_supply = json.loads(post.get('supply'))
                 item= get_object_or_404(Supply, pk=nuevo_supply['id'])
                 for supl in lista_supply:
                     cant = supl['cantidad']
@@ -237,15 +244,12 @@ class CreatePurchaseView(generics.ListCreateAPIView):
                     item.precio_unitario = Decimal(precio)
                     item.save()
 
-                #     item.saldo -= Decimal(post.get('cantidad'))
-                # item.save()
-
             else:
                 SuppliesPurchase.objects.create(purchase=serializer.instance,
                 supply=Supply.objects.get(pk=sup['id']), cantidad=sup['cantidad'],
                 precio_unitario=sup['precio_unitario'])
 
-                lista_supply = json.loads(post.get('supplies'))
+                lista_supply = json.loads(post.get('supply'))
                 supply_item= get_object_or_404(Supply, pk=sup['id'])
                 for supl in lista_supply:
                     cant = supl['cantidad']
@@ -253,14 +257,67 @@ class CreatePurchaseView(generics.ListCreateAPIView):
                     supply_item.saldo += Decimal(cant)
                     supply_item.precio_unitario = Decimal(precio)
                     supply_item.save()
-                #     item.saldo -= Decimal(post.get('cantidad'))
-                # item.save()
+
+            supply = Supplies.objects.get(supply=sup['id'])
+            producto = supply.product
+            producto.costo = costo_producto(id_producto=supply.product.id)
+            producto.save()
+
+
 
 # url(r'^compra/detalle/(?P<pk>[0-9]+)/$'
 class DetailsPurchaseView(generics.RetrieveUpdateDestroyAPIView):
     """Esta clase maneja los requests GET, PUT, PATCH y DELETE ."""
     queryset = Purchase.objects.all()
     serializer_class = PurchaseSerializer
+
+    def perform_update(self, serializer):
+        """Guarda la info al crear una nueva COMPRA. Suma al stock de SUPPLY. Crea nuevo SUPPLY si no existe.
+        Crea relación m2m """
+        serializer.save()
+        post = self.request.POST
+        lista_supplies = json.loads(post.get('supply'))
+
+        id_post = serializer.data['id']
+
+        Purchase(id_post).supply.clear()
+        for sup in lista_supplies:
+            if sup.get('id') == None:
+                nuevo_supply = Supply.objects.create(nombre=sup['nombre'], marca=sup['marca'],
+                tipo=sup['tipo'], precio_unitario=sup['precio_unitario'], saldo=sup['saldo'],
+                unidad=sup['unidad'], saldo_minimo=ingr['saldo_minimo'])
+
+                SuppliesPurchase.objects.create(purchase=serializer.instance,
+                supply= nuevo_supply, cantidad=sup['cantidad'], precio_unitario=sup['precio_unitario'])
+
+                lista_supply = json.loads(post.get('supply'))
+                item= get_object_or_404(Supply, pk=nuevo_supply['id'])
+                for supl in lista_supply:
+                    cant = supl['cantidad']
+                    precio = supl['precio_unitario']
+
+                    item.saldo += Decimal(cant)
+                    item.precio_unitario = Decimal(precio)
+                    item.save()
+
+            else:
+                SuppliesPurchase.objects.create(purchase=serializer.instance,
+                supply=Supply.objects.get(pk=sup['id']), cantidad=sup['cantidad'],
+                precio_unitario=sup['precio_unitario'])
+
+                lista_supply = json.loads(post.get('supply'))
+                supply_item= get_object_or_404(Supply, pk=sup['id'])
+                for supl in lista_supply:
+                    cant = supl['cantidad']
+                    precio = supl['precio_unitario']
+                    supply_item.saldo += Decimal(cant)
+                    supply_item.precio_unitario = Decimal(precio)
+                    supply_item.save()
+
+            supply = Supplies.objects.get(supply=sup['id'])
+            producto = supply.product
+            producto.costo = costo_producto(id_producto=supply.product.id)
+            producto.save()
 
 
 
@@ -339,7 +396,8 @@ class OrderView(generics.ListAPIView):
     serializer_class = OrderSerializer
 
 class OrderHelper():
-    def save_order(self, lista_productos, serializer, precio_hora_trabajada):
+
+    def save_order(self, lista_productos, serializer, precio_hora_trabajada, alerta):
 
         horas_trabajadas_total = 0
         for prod in lista_productos:
@@ -352,12 +410,14 @@ class OrderHelper():
                 ingrediente.saldo -= cantidad_por_ingrediente*Decimal(prod['cantidad'])
                 ingrediente.save()
                 if ingrediente.saldo <= ingrediente.saldo_minimo:
-                    alerta = {'Alerta' : {'Titulo' : 'Alerta de Stock', 'Mensaje': 'El stock del ingrediente {} llegó a su mínimo: {} '.format(ingrediente.nombre, ingrediente.saldo_minimo)}}
-
+                    alerta['Titulo']='Alerta de Stock'
+                    alerta['Mensaje'] = 'El stock del ingrediente {} llegó a su mínimo: {}. '.format(ingrediente.nombre, ingrediente.saldo_minimo)
+                    # alerta = {'Alerta' : {'Titulo' : 'Alerta de Stock', 'Mensaje': 'El stock del ingrediente {} llegó a su mínimo: {}. '.format(ingrediente.nombre, ingrediente.saldo_minimo)}}
             horas_trabajadas_total += producto.horas_trabajadas
 
         serializer.instance.precio_sugerido = (serializer.instance.costo_total*3)+(precio_hora_trabajada*horas_trabajadas_total)
         serializer.instance.save()
+
 
 # url(r'^pedido/nuevo/$'
 class CreateOrderView(generics.ListCreateAPIView, OrderHelper):
@@ -382,7 +442,7 @@ class CreateOrderView(generics.ListCreateAPIView, OrderHelper):
 
         serializer.instance.costo_total = costo_total_orden(post)
 
-        self.save_order(lista_productos, serializer, precio_hora_trabajada)
+        self.save_order(lista_productos, serializer, precio_hora_trabajada, alerta)
 
         headers = self.get_success_headers(serializer.data)
         return Response({'orden': serializer.data, 'alerta': alerta}, status=status.HTTP_201_CREATED, headers=headers)
@@ -417,6 +477,6 @@ class DetailsOrderView(generics.RetrieveUpdateDestroyAPIView, OrderHelper):
         serializer.instance.costo_total = costo_total_orden(post)
 
         Order(id_post).producto.clear()
-        self.save_order(lista_productos, serializer, precio_hora_trabajada)
+        self.save_order(lista_productos, serializer, precio_hora_trabajada, alerta)
 
         return Response({'orden': serializer.data, 'alerta': alerta})

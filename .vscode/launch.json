@@ -9,23 +9,7 @@
             "type": "pythonExperimental",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
-            "args": [
-                "runserver",
-                "--noreload",
-                "--nothreading"
-            ],
-            "debugOptions": [
-                "RedirectOutput",
-                "Django"
-            ]
-        },
-        {
-            "name": "Django",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": true,
-            "pythonPath": "C:\\Users\\Rocio\\Programacion\\Entorno_virtual\\vevndj2py36rest\\Scripts\\",
-            "program": "${workspaceFolder}/manage.py",
+            // "preLaunchTask": "C:\\Users\\Rocio\\Programacion\\Entorno_virtual\\venv\\Scripts\\activate.ps1",
             "args": [
                 "runserver",
                 "--noreload",

@@ -4,7 +4,7 @@ from .models import Feature, Product, Client, Order, Purchase, Supply, Supplier,
 class FeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feature
-        fields = ('id', 'nombre', 'tipo', 'precio', 'cantidad', 'imagen')
+        fields = ('id', 'nombre', 'tipo', 'precio', 'imagen')
 
 class SupplySerializer(serializers.ModelSerializer):
 

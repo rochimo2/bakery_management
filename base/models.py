@@ -24,7 +24,6 @@ class Feature(models.Model):
     nombre = models.CharField(max_length=70)
     tipo = models.CharField(max_length=70)
     precio = models.DecimalField('$', max_digits=10, decimal_places=2, default=0)
-    cantidad = models.IntegerField('cantidad', null=True)
     imagen = models.ImageField(upload_to=upload_image_path, null=True, blank=True)
     
     def __str__(self):
