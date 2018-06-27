@@ -23,7 +23,7 @@ class ClientSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Client
-        fields = ('id', 'nombre', 'direccion', 'telefono', 'mail', 'ordenes')
+        fields = ('id', 'nombre', 'direccion', 'telefono', 'mail')
 
 class OrderSerializer(serializers.ModelSerializer):
     prod = ProductSerializer(many=True, read_only=True)
@@ -47,7 +47,7 @@ class PurchaseSerializer(serializers.ModelSerializer):
 class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
-        fields = ('id', 'fecha', 'orden', 'cliente')
+        fields = ('id', 'fecha', 'orden', 'cliente', 'precio_final')
 
 
  
