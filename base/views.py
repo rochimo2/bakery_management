@@ -224,6 +224,7 @@ class CreatePurchaseView(generics.ListCreateAPIView):
         serializer.save()
         post = self.request.POST
         lista_supplies = json.loads(post.get('supply'))
+#TODO: hacer tambien la lista de caracteristicas, secompran tambien
 
         for sup in lista_supplies:
             if sup.get('id') == None:
