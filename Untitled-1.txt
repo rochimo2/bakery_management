@@ -1,8 +1,0 @@
->>> auto = Auto.objects.create(auto_name="The Grey Auto", artist='Danger Mouse')
->>> Repuesto.objects.create(auto=auto, order=1, title='Public Service Announcement', duration=245)
-<Repuesto: Repuesto object>
->>> Repuesto.objects.create(auto=auto, order=2, title='What More Can I Say', duration=264)
-<Repuesto: Repuesto object>
->>> Repuesto.objects.create(auto=auto, order=3, title='Encore', duration=159)
-<Repuesto: Repuesto object>
->>> serializer = AutoSerializer(instance=auto)
