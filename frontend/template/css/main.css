@@ -1,6 +1,6 @@
 #cake .subhead,.member h4,.navbar-custom,h4{
     letter-spacing:1px
-}
+} 
 .button,.cakes a,a{
     outline:0
 }
@@ -148,7 +148,7 @@ svg{
 }
 #top{
     min-height:600px;
-    background:url(bg-top2.jpg);
+    background:url(../img/bg-top.png);
     background-size:cover;
     -webkit-background-size:cover;
     -moz-background-size:cover;
@@ -156,7 +156,7 @@ svg{
     width:100%;
     position:relative;
     padding:0;
-    background-position-y: 25%
+    background-position-y: 73%
 }
 /* #top{
     min-height:600px;
@@ -288,7 +288,7 @@ svg{
     margin-bottom:200px
 }
 #store .stores{
-    background-image:url(bg_store.png);
+    background-image:url(../img/bg_store.png);
     background-repeat:no-repeat;
     background-position:center;
     background-size:cover;
@@ -352,7 +352,7 @@ svg{
     border:10px solid rgba(255,255,255,.6)
 }
 #funfacts{
-    background-image:url(bg-funfacts.png);
+    background-image:url(../img/bg-funfacts.png);
     background-repeat:no-repeat;
     background-attachment:fixed;
     background-position:center;
@@ -365,11 +365,12 @@ svg{
 }
 .funfacts-inner{
     color:#fff;
-    background:;
+    background:#50c0a799;
     position:absolute;
     width:100%;
     height:100%
 }
+/* TODO: cambiar el color */
 #funfacts .item{
     margin:100px auto 0
 }
@@ -397,7 +398,7 @@ svg{
     margin:10px 10px 20px
 }
 #testimonial{
-    background:url(bg-testimonial.png) center no-repeat fixed #fac42b;
+    background:url(../img/bg-testimonial.png) center no-repeat fixed #fac42b;
     background-size:cover;
     -webkit-background-size:cover;
     -moz-background-size:cover;
