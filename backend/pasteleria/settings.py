@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE ='America/Argentina/Buenos_Aires'
+TIME_ZONE = 'America/Argentina/Buenos_Aires'
 
 USE_I18N = True
 
@@ -122,19 +122,21 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 # css, statics va acá
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static_my_proj"),
-]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "static_my_proj"),
+# ]
 
-STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static_cdn", "static_root")
+STATIC_ROOT = 'C:\\Users\Rocio\\Programacion\\pasteleria\\static_cdn'
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static_cdn", "media_root")
+MEDIA_ROOT = os.path.join(os.path.dirname(
+    BASE_DIR), 'pasteleria')
+# os.path.join(os.path.dirname(BASE_DIR), "static_cdn", "media_root")
 
 GRAPH_MODELS = {
-  'all_applications': True,
-  'group_models': True,
+    'all_applications': True,
+    'group_models': True,
 }
 
 REST_FRAMEWORK = {

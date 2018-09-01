@@ -1,0 +1,65 @@
+[33mcommit 73f49c8b51c189433115c532970aaaa1bcf123b7[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: rochimo2 <rmoyano@nomades.com.ar>
+Date:   Wed Aug 22 11:36:28 2018 -0300
+
+    Se arreglo la visualizacion del template
+
+[33mcommit e66b413a28684cbe5ebd56e1710371a65a495a2b[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: rochimo2 <rmoyano@nomades.com.ar>
+Date:   Tue Aug 21 11:58:17 2018 -0300
+
+    mejora en la estructura del directorio
+
+[33mcommit fc22b937478857b9923e695133d64bd75d3da7be[m
+Author: rochimo2 <rmoyano@nomades.com.ar>
+Date:   Sun Jul 29 17:37:30 2018 -0300
+
+    commit por virus
+
+[33mcommit 2ae9ab6a67eea8dba59c55c63dccfdb76b96e438[m
+Author: rochimo2 <rmoyano@nomades.com.ar>
+Date:   Tue Jun 26 21:51:21 2018 -0300
+
+    Correccion de serializer, campos faltantes y sobrantes
+
+[33mcommit 0c81670801f9100ed25aa0c0f415c9bd9e9c56ba[m
+Author: rochimo2 <rmoyano@nomades.com.ar>
+Date:   Tue Jun 26 14:01:07 2018 -0300
+
+    Corrección alarma en views
+
+[33mcommit b553b3dd8b4186610b36042fa4cfc2fd38047359[m
+Author: rochimo2 <rmoyano@nomades.com.ar>
+Date:   Wed Jun 20 18:02:53 2018 -0300
+
+    Se puso en funcionamiento el Update de las Ordenes
+
+[33mcommit d5c5695cd4c4ee215cddb3859f48272e9b7b7051[m
+Author: rochimo2 <rmoyano@nomades.com.ar>
+Date:   Wed Jun 20 17:07:34 2018 -0300
+
+    Se creo la funcion de alerta por stock
+
+[33mcommit 47e350dcc2601861e6140df12175f114bd86302e[m[33m ([m[1;33mtag: Version1.1[m[33m, [m[1;32mfix_car_ing[m[33m)[m
+Author: rochimo2 <rmoyano@nomades.com.ar>
+Date:   Tue Jun 12 21:07:01 2018 -0300
+
+    todos los modelos funcionando. Hacer QA
+
+[33mcommit b6d79d68600a2f564edd993bf90b97f3cacac647[m[33m ([m[1;32mfix_m2m[m[33m)[m
+Author: rochimo2 <rmoyano@nomades.com.ar>
+Date:   Tue May 1 18:32:11 2018 -0300
+
+    Se arreglo el m2m y la api
+
+[33mcommit 5cf148375729ddd86385bcbc47a4e7d9c256fe9b[m
+Author: rochimo2 <rmoyano@nomades.com.ar>
+Date:   Tue Apr 17 21:08:07 2018 -0300
+
+    arreglamos m2m
+
+[33mcommit 99389bee85a0087803c4223d4f4bf35df3166212[m
+Author: rochimo2 <rmoyano@nomades.com.ar>
+Date:   Tue Apr 17 20:48:26 2018 -0300
+
+    Primer commit
